@@ -1,0 +1,186 @@
+#SANTIAGO ARCILA GUTIERREZ
+CREATE DATABASE Taller_AutoExpress;
+USE Taller_AutoExpress;
+
+CREATE TABLE Clientes(
+DNI INT(11) PRIMARY KEY NOT NULL UNIQUE,
+Nombre_Completo VARCHAR(40) NOT NULL,
+Telefono INT(10) NOT NULL,
+Correo_electronico VARCHAR(40) NOT NULL,
+Direccion VARCHAR(40) NOT NULL
+
+);
+
+DESCRIBE clientes;
+SHOW TABLES;
+
+CREATE TABLE Vehiculos(
+Numero_de_placa VARCHAR(10) PRIMARY KEY NOT NULL,
+Modelo VARCHAR(40) NOT NULL,
+Año INTEGER(4) NOT NULL,
+Color VARCHAR(30) NOT NULL,
+Marca VARCHAR(30) NOT NULL,
+DNI_Cliente INT(11) NOT NULL,
+FOREIGN KEY (DNI_Cliente) REFERENCES Clientes(DNI) ON DELETE CASCADE
+);
+
+DESCRIBE Vehiculos;
+SHOW TABLES;
+
+CREATE TABLE Mecanicos(
+Codigo_de_empleado VARCHAR(11) PRIMARY KEY NOT NULL,
+Nombre_completo VARCHAR(40) NOT NULL,
+Años_de_experiencia INT(2) NOT NULL,
+Especialidad VARCHAR(50) NOT NULL
+);
+
+DESCRIBE Mecanicos;
+SHOW TABLES;
+
+
+CREATE TABLE Servicios(
+Numero_de_orden VARCHAR(15) PRIMARY KEY NOT NULL,
+Tipo_de_servicio VARCHAR(100) NOT NULL,
+Fecha_de_ingreso DATE NOT NULL,
+Fecha_de_entrega DATE NULL,
+Horas_de_mano_de_obra DECIMAL(4,2) NOT NULL DEFAULT 0.00,
+Numero_de_placa VARCHAR(10) NOT NULL,
+Codigo_de_empleado VARCHAR(11) NOT NULL,
+FOREIGN KEY (Numero_de_placa) REFERENCES Vehiculos(Numero_de_placa), 
+FOREIGN KEY (Codigo_de_empleado) REFERENCES Mecanicos(Codigo_de_empleado) 
+);
+
+DESCRIBE Servicios;
+SHOW TABLES;
+
+CREATE TABLE Factura(
+Numero_de_factura VARCHAR(20) NOT NULL UNIQUE,
+Detalle_trabajos_realizados VARCHAR (100) NOT NULL,
+Costo_total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+Numero_de_orden_servicios VARCHAR(15) NOT NULL,
+FOREIGN KEY (Numero_de_orden_servicios) REFERENCES Servicios(Numero_de_orden) ON DELETE CASCADE
+
+);
+
+DESCRIBE Factura;
+SHOW TABLES;
+
+CREATE TABLE Repuestos_utilizados(
+Codigo_repuesto VARCHAR(20) PRIMARY KEY NOT NULL,
+Descripcion VARCHAR(100) NOT NULL,
+Precio DECIMAL(8,2) NOT NULL DEFAULT 0.00
+
+);
+
+DESCRIBE Repuestos_utilizados;
+SHOW TABLES;
+
+CREATE TABLE Garantia(
+Numero_de_orden_servicios VARCHAR(15) NOT NULL,
+Numero_de_garantia VARCHAR(15) NOT NULL,
+Duracion INT(2) NOT NULL,
+Condiciones VARCHAR(200) NULL,
+FOREIGN KEY (Numero_de_orden_servicios) REFERENCES Servicios (Numero_de_orden) ON DELETE CASCADE
+);
+
+DESCRIBE Garantia;
+SHOW TABLES;
+
+CREATE TABLE Inventario_del_vehiculo(
+Fecha_de_registro DATE NOT NULL,
+Estado VARCHAR(100) NOT NULL,
+Componente VARCHAR(100) NOT NULL,
+Cantidad INT(50) NOT NULL,
+Observaciones VARCHAR(200) NULL,
+Numero_de_placa_vehiculos VARCHAR(15) NOT NULL,
+FOREIGN KEY (Numero_de_placa_vehiculos) REFERENCES Vehiculos(Numero_de_placa)
+
+);
+
+DESCRIBE Inventario_del_vehiculo;
+SHOW TABLES;
+
+CREATE TABLE Servicio_y_repuesto(
+Cantidad INT NULL,
+Precio_unitario DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+Numero_de_orden_servicios VARCHAR(15) NOT NULL,
+Codigo_repuesto_repuestos_utilizados VARCHAR(20) NOT NULL,
+FOREIGN KEY (Numero_de_orden_servicios) REFERENCES Servicios(Numero_de_orden),
+FOREIGN KEY (Codigo_repuesto_repuestos_utilizados) REFERENCES Repuestos_utilizados(Codigo_repuesto)
+);
+
+DESCRIBE Servicio_y_repuesto;
+SHOW TABLES;
+
+
+
+
+INSERT INTO Clientes VALUES 
+(12345678, 'María González López', 987654321, 'maria.gonzalez@email.com', 'Av. Las Flores 123, Lima'),
+(23456789, 'Carlos Rodríguez Pérez', 987654322, 'carlos.rodriguez@email.com', 'Jr. Libertad 456, Lima'),
+(34567890, 'Ana Martínez Silva', 987654323, 'ana.martinez@email.com', 'Calle Los Pinos 789, Lima'),
+(45678901, 'Luis García Torres', 987654324, 'luis.garcia@email.com', 'Av. Universitaria 321, Lima'),
+(56789012, 'Elena Castro Díaz', 987654325, 'elena.castro@email.com', 'Jr. Amazonas 654, Lima');
+
+
+INSERT INTO Vehiculos VALUES
+('ABC-123', 'Corolla', 2020, 'Rojo', 'Toyota', 12345678),
+('XYZ-789', 'Civic', 2019, 'Azul', 'Honda', 23456789),
+('DEF-456', 'Sentra', 2021, 'Blanco', 'Nissan', 34567890),
+('GHI-789', 'Focus', 2018, 'Negro', 'Ford', 45678901),
+('JKL-012', 'Spark', 2022, 'Gris', 'Chevrolet', 56789012);
+
+
+INSERT INTO Mecanicos VALUES
+('MEC-001', 'Roberto Sánchez Mendoza', 8, 'Motor y Transmisión'),
+('MEC-002', 'Laura Fernández Castro', 5, 'Sistema Eléctrico'),
+('MEC-003', 'Javier López Ruiz', 10, 'Suspensión y Frenos'),
+('MEC-004', 'Carmen Vargas Soto', 3, 'Aire Acondicionado'),
+('MEC-005', 'Diego Ramírez Herrera', 6, 'Diagnóstico Computarizado');
+
+INSERT INTO Servicios VALUES
+('ORD-2025-001', 'Cambio de aceite y filtro', '2025-01-15', '2025-01-15', 1.5, 'ABC-123', 'MEC-001'),
+('ORD-2025-002', 'Reparación de alternador', '2025-01-16', '2025-01-18', 4.0, 'XYZ-789', 'MEC-002'),
+('ORD-2025-003', 'Alineación y balanceo', '2025-01-17', '2025-01-17', 2.0, 'DEF-456', 'MEC-003'),
+('ORD-2025-004', 'Reparación de aire acondicionado', '2025-01-18', NULL, 3.5, 'GHI-789', 'MEC-004'),
+('ORD-2025-005', 'Diagnóstico completo', '2025-01-19', '2025-01-19', 1.0, 'JKL-012', 'MEC-005');
+
+INSERT INTO Repuestos_utilizados VALUES
+('REP-001', 'Aceite sintético 5W-30', 45.00),
+('REP-002', 'Filtro de aceite', 15.50),
+('REP-003', 'Alternador nuevo', 320.00),
+('REP-004', 'Banda de alternador', 25.00),
+('REP-005', 'Aceite dirección hidráulica', 35.00),
+('REP-006', 'Gas refrigerante R134a', 80.00),
+('REP-007', 'Sensor de oxígeno', 120.00);
+
+INSERT INTO Servicio_y_repuesto VALUES
+(1, 45.00, 'ORD-2025-001', 'REP-001'),
+(1, 15.50, 'ORD-2025-001', 'REP-002'),
+(1, 320.00, 'ORD-2025-002', 'REP-003'),
+(1, 25.00, 'ORD-2025-002', 'REP-004'),
+(2, 35.00, 'ORD-2025-003', 'REP-005'),
+(3, 80.00, 'ORD-2025-004', 'REP-006'),
+(1, 120.00, 'ORD-2025-005', 'REP-007');
+
+INSERT INTO Factura VALUES
+('FACT-2025-001', 'Cambio de aceite sintético y filtro. Revisión de niveles.', 180.00, 'ORD-2025-001'),
+('FACT-2025-002', 'Reemplazo de alternador y banda. Prueba del sistema eléctrico.', 850.00, 'ORD-2025-002'),
+('FACT-2025-003', 'Alineación láser y balanceo de ruedas. Ajuste de presión.', 220.00, 'ORD-2025-003'),
+('FACT-2025-005', 'Diagnóstico computarizado completo. Scanner de fallas.', 150.00, 'ORD-2025-005');
+-- NOTA: ORD-2025-004 no tiene factura porque está en proceso
+
+INSERT INTO Garantia VALUES
+('ORD-2025-001', 'GAR-2025-001', 12, 'Garantía en mano de obra por 12 meses. Repuestos con garantía de fábrica.'),
+('ORD-2025-002', 'GAR-2025-002', 6, 'Garantía en alternador por 6 meses. Incluye instalación.'),
+('ORD-2025-003', 'GAR-2025-003', 3, 'Garantía en alineación por 3 meses o 5,000 km.');
+
+INSERT INTO Inventario_del_vehiculo VALUES
+('2025-01-15', 'BUENO', 'Motor', 1, 'Motor en buen estado, sin fugas', 'ABC-123'),
+('2025-01-15', 'DANIADO', 'Espejo lateral derecho', 1, 'Espejo quebrado, cliente informado', 'ABC-123'),
+('2025-01-16', 'BUENO', 'Sistema eléctrico', 1, 'Batería y alternador funcionando', 'XYZ-789'),
+('2025-01-17', 'DESGASTADO', 'Llantas', 4, 'Llantas con 70% de vida útil', 'DEF-456'),
+('2025-01-18', 'FALTANTE', 'Tapón de gasolina', 1, 'Tapón faltante, requiere reemplazo', 'GHI-789');
+
+SELECT c.Nombre_Completo, c.Telefono, v.Numero_de_placa, v.Marca, v.Modelo FROM Clientes c JOIN Vehiculos v ON c.DNI = v.DNI_Cliente;
+
